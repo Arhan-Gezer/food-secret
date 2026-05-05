@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}My Orders{% endblock %}
+
+{% block content %}
+<h2>My Orders</h2>
+
+{% if orders %}
+  <table border="1" cellpadding="6" cellspacing="0">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Recipe</th>
+        <th>Restaurant</th>
+        <th>Status</th>
+        <th>Placed at</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>{{ order.id }}</td>
+        <td>{{ order.recipe_title or "(deleted recipe)" }}</td>
+        <td>{{ order.restaurant_name }}</td>
+        <td><strong>{{ order.status }}</strong></td>
+        <td>{{ order.created_at }}</td>
+        <td><a href="{{ url_for('orders.detail', order_id=order.id) }}">View</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>You have not placed any orders yet.</p>
+  <p>Browse the recipes section to find something to order.</p>
+{% endif %}
+{% endblock %}
