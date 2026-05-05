@@ -118,8 +118,11 @@ GitHub Actions runs the test pipeline on every push:
 
 Deployment to Railway happens automatically on push to `develop` via Railway's GitHub integration. The `main` branch is reserved for production releases.
 
+---
 
 ## Project Structure
+---
+
 ## Team
 
 | Member | Module | Responsibilities |
