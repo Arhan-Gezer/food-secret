@@ -122,6 +122,39 @@ Deployment to Railway happens automatically on push to `develop` via Railway's G
 
 ## Project Structure
 ---
+```
+food-secret/
+  app/
+    __init__.py             # Application factory (create_app)
+    constants.py            # Shared string constants
+    database.py             # SQLite connection + init_db
+    models.py               # Data classes (User, Recipe, Order)
+    routes/
+      auth.py               # Register, login, logout
+      recipes.py            # Recipe CRUD (in progress)
+      calories.py           # Calorie logging dashboard
+      orders.py             # Place orders, view history
+    services/
+      calorie_service.py
+      food_entry_factory.py # Factory Pattern implementation
+      order_service.py
+    templates/              # Jinja2 templates per module
+  tests/
+    conftest.py             # Shared pytest fixtures
+    test_auth.py
+    test_calories.py
+    test_orders.py
+    test_smoke.py
+  static/css/style.css
+  .github/workflows/pipeline.yml
+  Dockerfile
+  .dockerignore
+  requirements.txt
+  run.py
+  README.md
+```
+
+---
 
 ## Team
 
