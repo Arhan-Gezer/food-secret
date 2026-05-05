@@ -9,7 +9,7 @@ Run with:
 import pytest
 import json
 import os
-from app.database import get_db
+import tempfile
 
 
 # ---------------------------------------------------------------------------
@@ -18,21 +18,34 @@ from app.database import get_db
 
 @pytest.fixture
 def app():
-    """Create and configure a Flask app instance for testing."""
+    """
+    Create a Flask app that uses a real temp file as its database.
+    We use a temp file (not :memory:) because get_db() reads
+    current_app.config["DATABASE"] at connection time, and we need
+    the config to be set before create_app() opens any connection.
+    """
+    # Create a temporary database file
+    db_fd, db_path = tempfile.mkstemp()
+
     os.environ["SECRET_KEY"] = "test-secret-key"
 
     from app import create_app
     app = create_app()
 
-    app.config["DATABASE"] = ":memory:"
+    # Override DATABASE to point to our temp file
+    app.config["DATABASE"] = db_path
     app.config["TESTING"] = True
 
     with app.app_context():
         from app.database import init_db
         init_db()
-        _seed_test_data(app)
+        _seed_test_data()
 
     yield app
+
+    # Cleanup temp file after each test
+    os.close(db_fd)
+    os.unlink(db_path)
 
 
 @pytest.fixture
@@ -52,26 +65,27 @@ def auth_client(app):
 
 
 # ---------------------------------------------------------------------------
-# Seed helper
+# Seed helper — called inside app_context, so get_db() works fine
 # ---------------------------------------------------------------------------
 
-def _seed_test_data(app):
+def _seed_test_data():
     from werkzeug.security import generate_password_hash
-    with app.app_context():
-        db = get_db()
-        db.execute(
-            "INSERT INTO users (email, password_hash, name) VALUES (?, ?, ?)",
-            ("test@example.com", generate_password_hash("password123"), "Test User"),
-        )
-        db.execute(
-            "INSERT INTO recipes (title, ingredients, calorie_amount, budget, creator_id) VALUES (?, ?, ?, ?, ?)",
-            ("Zucchini Pasta", json.dumps([{"name": "zucchini", "amount": "200g"}]), 450.0, 25.0, 1),
-        )
-        db.execute(
-            "INSERT INTO recipes (title, ingredients, calorie_amount, budget, creator_id) VALUES (?, ?, ?, ?, ?)",
-            ("Grilled Chicken", json.dumps([{"name": "chicken breast", "amount": "300g"}]), 320.0, 60.0, 1),
-        )
-        db.commit()
+    from app.database import get_db
+
+    db = get_db()
+    db.execute(
+        "INSERT INTO users (email, password_hash, name) VALUES (?, ?, ?)",
+        ("test@example.com", generate_password_hash("password123"), "Test User"),
+    )
+    db.execute(
+        "INSERT INTO recipes (title, ingredients, calorie_amount, budget, creator_id) VALUES (?, ?, ?, ?, ?)",
+        ("Zucchini Pasta", json.dumps([{"name": "zucchini", "amount": "200g"}]), 450.0, 25.0, 1),
+    )
+    db.execute(
+        "INSERT INTO recipes (title, ingredients, calorie_amount, budget, creator_id) VALUES (?, ?, ?, ?, ?)",
+        ("Grilled Chicken", json.dumps([{"name": "chicken breast", "amount": "300g"}]), 320.0, 60.0, 1),
+    )
+    db.commit()
 
 
 # ---------------------------------------------------------------------------
