@@ -1,14 +1,7 @@
-﻿from flask import Flask
+# run.py
+from app import create_app
 
-app = Flask(__name__)
+app = create_app()
 
-@app.route('/')
-def hello():
-    return '<h1>Food Secret is running!</h1><p>Pipeline test successful.</p>'
-
-@app.route('/health')
-def health():
-    return {'status': 'ok'}, 200
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
