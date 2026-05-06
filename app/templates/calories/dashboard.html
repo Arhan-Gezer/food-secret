@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Dashboard</h2>
+
+{% if profile %}
+<div class="stats-box">
+    <p><strong>Daily Goal:</strong> {{ profile.daily_calorie_goal | round(0) | int }} kcal</p>
+    <p><strong>Consumed Today:</strong> {{ daily_total | round(0) | int }} kcal</p>
+    <p><strong>Remaining:</strong> {{ remaining | round(0) | int }} kcal</p>
+
+    <div class="progress-bar-container">
+        <div class="progress-bar" style="width: {{ [((daily_total / profile.daily_calorie_goal) * 100), 100] | min }}%"></div>
+    </div>
+</div>
+{% endif %}
+
+<div class="form-container" style="margin-top: 2rem;">
+    <h3>Log Calories</h3>
+
+    <form method="POST" action="{{ url_for('calories.log') }}">
+        <div class="form-group">
+            <label for="meal_type">Meal Type</label>
+            <select name="meal_type" id="meal_type" required>
+                <option value="">Select meal type</option>
+                {% for meal in meal_types %}
+                    <option value="{{ meal }}">{{ meal | capitalize }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="entry_type">Entry Type</label>
+            <select name="entry_type" id="entry_type" onchange="toggleEntryType(this.value)">
+                <option value="simple">Simple (direct calories)</option>
+                <option value="macro">Macro (protein/carbs/fat)</option>
+            </select>
+        </div>
+
+        <div id="simple-entry">
+            <div class="form-group">
+                <label for="calories">Calories (kcal)</label>
+                <input type="number" name="calories" id="calories" step="0.1" min="0">
+            </div>
+        </div>
+
+        <div id="macro-entry" style="display:none;">
+            <div class="form-group">
+                <label for="protein">Protein (g)</label>
+                <input type="number" name="protein" id="protein" step="0.1" min="0">
+            </div>
+            <div class="form-group">
+                <label for="carbs">Carbs (g)</label>
+                <input type="number" name="carbs" id="carbs" step="0.1" min="0">
+            </div>
+            <div class="form-group">
+                <label for="fat">Fat (g)</label>
+                <input type="number" name="fat" id="fat" step="0.1" min="0">
+            </div>
+        </div>
+
+        <button type="submit">Log Calories</button>
+    </form>
+</div>
+
+<div style="margin-top: 2rem;">
+    <h3>Today's Log</h3>
+    {% set today_logs = history | selectattr("date", "equalto", today) | list %}
+    {% if today_logs %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Meal</th>
+                    <th>Calories</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in today_logs %}
+                <tr>
+                    <td>{{ log.meal_type | capitalize }}</td>
+                    <td>{{ log.calories | round(0) | int }} kcal</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No entries for today yet.</p>
+    {% endif %}
+</div>
+
+<script>
+function toggleEntryType(type) {
+    document.getElementById('simple-entry').style.display = type === 'simple' ? 'block' : 'none';
+    document.getElementById('macro-entry').style.display = type === 'macro' ? 'block' : 'none';
+}
+</script>
+{% endblock %}
