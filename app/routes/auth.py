@@ -135,4 +135,6 @@ def logout():
 
 @auth_bp.route("/")
 def index():
-    return redirect(url_for("auth.login"))
+    if SESSION_USER_ID in session:
+        return redirect(url_for("calories.dashboard"))
+    return render_template("index.html")
