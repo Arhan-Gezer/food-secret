@@ -198,6 +198,7 @@
         <div class="card-body p-4">
           <p class="section-title">Log Calories</p>
           <form method="POST" action="{{ url_for('calories.log') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
             <div class="mb-3">
               <label for="meal_type" class="form-label">Meal Type</label>
