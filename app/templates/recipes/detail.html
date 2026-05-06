@@ -1,76 +1,40 @@
 {% extends "base.html" %}
 
-{% block title %}{{ recipe.title }} — Food Secret{% endblock %}
-
 {% block content %}
-<div class="container py-4" style="max-width: 720px;">
+<a href="{{ url_for('recipes.list_recipes') }}">← Back to Recipes</a>
 
-  {# ── Flash messages ── #}
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% for category, message in messages %}
-      <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
-    {% endfor %}
-  {% endwith %}
+<div class="form-container" style="max-width: 720px; margin-top: 1rem;">
+    <h2>{{ recipe.title }}</h2>
 
-  <a href="{{ url_for('recipes.list_recipes') }}" class="btn btn-outline-secondary btn-sm mb-3">
-    ← Back to Recipes
-  </a>
+    <p><strong>Calories:</strong> {{ recipe.calorie_amount | int }} kcal</p>
+    <p><strong>Budget:</strong> {{ "%.2f" | format(recipe.budget) }} TL</p>
+    <p><strong>Created:</strong> {{ recipe.created_at[:10] }}</p>
 
-  <div class="card shadow-sm">
-    <div class="card-body">
-
-      <h2 class="card-title fw-bold">{{ recipe.title }}</h2>
-
-      <div class="d-flex gap-3 text-muted small mb-4">
-        <span>🔥 <strong>{{ recipe.calorie_amount | int }} kcal</strong></span>
-        <span>💰 <strong>₺{{ "%.2f" | format(recipe.budget) }}</strong></span>
-        <span>📅 {{ recipe.created_at[:10] }}</span>
-      </div>
-
-      {# ── Ingredients ── #}
-      <h5 class="fw-semibold">Ingredients</h5>
-      {% if recipe.ingredients %}
-        <ul class="list-group list-group-flush mb-4">
-          {% for item in recipe.ingredients %}
-            <li class="list-group-item px-0">
-              {{ item.name }}
-              {% if item.amount %}
-                <span class="text-muted">— {{ item.amount }}</span>
-              {% endif %}
-            </li>
-          {% endfor %}
+    <h4>Ingredients</h4>
+    {% if recipe.ingredients %}
+        <ul>
+            {% for item in recipe.ingredients %}
+                <li>{{ item.name }} {% if item.amount %} — {{ item.amount }}{% endif %}</li>
+            {% endfor %}
         </ul>
-      {% else %}
-        <p class="text-muted">No ingredients listed.</p>
-      {% endif %}
+    {% else %}
+        <p>No ingredients listed.</p>
+    {% endif %}
 
-      {# ── Action buttons ── #}
-      <div class="d-flex gap-2 flex-wrap mt-3">
-
-        {# Log calories — POST to Cihan's route #}
-        <form method="post" action="{{ url_for('calories.log_calories') }}">
-          <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
-          <input type="hidden" name="calories"  value="{{ recipe.calorie_amount }}">
-          <input type="hidden" name="meal_type" value="lunch">
-          <button type="submit" class="btn btn-outline-success">
-            ➕ Add to My Calories
-          </button>
+    <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+        <form method="POST" action="{{ url_for('calories.log') }}">
+            <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
+            <input type="hidden" name="calories" value="{{ recipe.calorie_amount }}">
+            <input type="hidden" name="meal_type" value="lunch">
+            <input type="hidden" name="entry_type" value="simple">
+            <button type="submit">+ Add to My Calories</button>
         </form>
 
-        {# Place order — POST to Erol's route #}
-        <form method="post" action="{{ url_for('orders.place_order') }}">
-          <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
-          <button type="submit" class="btn btn-outline-primary">
-            🛵 Order This Meal
-          </button>
+        <form method="POST" action="{{ url_for('orders.place') }}">
+            <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
+            <input type="hidden" name="restaurant_name" value="Food Secret Kitchen">
+            <button type="submit">Order This Meal</button>
         </form>
-
-      </div>
     </div>
-  </div>
-
 </div>
 {% endblock %}
