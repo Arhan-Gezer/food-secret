@@ -1,27 +1,177 @@
 {% extends "base.html" %}
 
-{% block title %}Order #{{ order.id }}{% endblock %}
+{% block title %}Order #{{ order.id }} — Food Secret{% endblock %}
 
 {% block content %}
-<h2>Order #{{ order.id }}</h2>
+<style>
+  .order-hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-radius: 1.25rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .order-hero::after {
+    content: "🛵";
+    position: absolute;
+    right: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 5rem;
+    opacity: 0.12;
+  }
+  .order-hero h1 {
+    font-family: 'Georgia', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+  }
+  .order-hero p { color: rgba(255,255,255,0.6); margin: 0; font-size: 0.9rem; }
 
-<table border="1" cellpadding="6" cellspacing="0">
-  <tr><th>Recipe</th><td>{{ order.recipe_title or "(deleted recipe)" }}</td></tr>
-  <tr><th>Restaurant</th><td>{{ order.restaurant_name }}</td></tr>
-  <tr><th>Status</th><td><strong>{{ order.status }}</strong></td></tr>
-  <tr><th>Placed at</th><td>{{ order.created_at }}</td></tr>
-</table>
+  .detail-card, .update-card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.93rem;
+  }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6c757d;
+  }
+  .detail-value {
+    font-weight: 600;
+    color: #1a1a2e;
+  }
 
-<h3>Update Status</h3>
-<form method="POST" action="{{ url_for('orders.update', order_id=order.id) }}">
-  <label for="status">New status:</label>
-  <select name="status" id="status">
-    {% for status in statuses %}
-      <option value="{{ status }}" {% if status == order.status %}selected{% endif %}>{{ status }}</option>
-    {% endfor %}
-  </select>
-  <button type="submit">Update</button>
-</form>
+  .status-badge {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.3em 0.85em;
+    border-radius: 1rem;
+    text-transform: capitalize;
+  }
+  .status-pending   { background: #fff3cd; color: #856404; }
+  .status-confirmed { background: #cff4fc; color: #055160; }
+  .status-delivered { background: #d1fae5; color: #065f46; }
+  .status-cancelled { background: #f8d7da; color: #842029; }
 
-<p><a href="{{ url_for('orders.history') }}">&larr; Back to my orders</a></p>
+  .section-title {
+    font-family: 'Georgia', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 1.25rem;
+  }
+  .form-label {
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: #1a1a2e;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .form-select {
+    border-radius: 0.6rem;
+    border: 1.5px solid #e0e0e0;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+  }
+  .form-select:focus {
+    border-color: #0f3460;
+    box-shadow: 0 0 0 3px rgba(15,52,96,0.1);
+  }
+  .btn-update {
+    background: #e94560;
+    color: #fff;
+    border: none;
+    border-radius: 0.6rem;
+    font-weight: 700;
+    padding: 0.6rem 2rem;
+    transition: background 0.2s;
+  }
+  .btn-update:hover { background: #c73652; color: #fff; }
+  .btn-back {
+    color: #6c757d;
+    font-size: 0.85rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-bottom: 1.25rem;
+  }
+  .btn-back:hover { color: #1a1a2e; }
+</style>
+
+<div class="container py-4" style="max-width: 640px;">
+
+  <a href="{{ url_for('orders.history') }}" class="btn-back">← Back to My Orders</a>
+
+  <div class="order-hero">
+    <h1>Order #{{ order.id }}</h1>
+    <p>Placed at {{ order.created_at }}</p>
+  </div>
+
+  {# ── Order Details ── #}
+  <div class="card detail-card mb-3">
+    <div class="card-body p-4">
+      <p class="section-title">Order Details</p>
+
+      <div class="detail-row">
+        <span class="detail-label">Recipe</span>
+        <span class="detail-value">{{ order.recipe_title or "(deleted recipe)" }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Restaurant</span>
+        <span class="detail-value">{{ order.restaurant_name }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Status</span>
+        <span>
+          {% set s = order.status | lower %}
+          <span class="status-badge
+            {% if s == 'pending' %}status-pending
+            {% elif s == 'confirmed' %}status-confirmed
+            {% elif s == 'delivered' %}status-delivered
+            {% elif s == 'cancelled' %}status-cancelled
+            {% else %}status-pending{% endif %}">
+            {{ order.status }}
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  {# ── Update Status ── #}
+  <div class="card update-card">
+    <div class="card-body p-4">
+      <p class="section-title">Update Status</p>
+      <form method="POST" action="{{ url_for('orders.update', order_id=order.id) }}">
+        <div class="mb-3">
+          <label for="status" class="form-label">New Status</label>
+          <select name="status" id="status" class="form-select">
+            {% for status in statuses %}
+              <option value="{{ status }}" {% if status == order.status %}selected{% endif %}>
+                {{ status }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-update">Update Order</button>
+      </form>
+    </div>
+  </div>
+
+</div>
 {% endblock %}

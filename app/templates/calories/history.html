@@ -1,30 +1,136 @@
 {% extends "base.html" %}
 
-{% block content %}
-<h2>Calorie History</h2>
+{% block title %}Calorie History — Food Secret{% endblock %}
 
-{% if logs %}
-    <table class="table">
+{% block content %}
+<style>
+  .history-hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-radius: 1.25rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .history-hero::after {
+    content: "📋";
+    position: absolute;
+    right: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 5rem;
+    opacity: 0.12;
+  }
+  .history-hero h1 {
+    font-family: 'Georgia', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+  }
+  .history-hero p { color: rgba(255,255,255,0.6); margin: 0; }
+
+  .history-card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    overflow: hidden;
+  }
+  .history-table th {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6c757d;
+    font-weight: 700;
+    border-bottom: 2px solid #f0f0f0;
+    padding: 0.9rem 1.25rem;
+    background: #f8f9fa;
+  }
+  .history-table td {
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 0.93rem;
+    vertical-align: middle;
+  }
+  .history-table tbody tr:last-child td { border-bottom: none; }
+  .history-table tbody tr:hover { background: #fafafa; }
+
+  .meal-badge {
+    background: #f0f4ff;
+    color: #4f46e5;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.25em 0.7em;
+    border-radius: 1rem;
+    text-transform: capitalize;
+  }
+  .kcal-tag {
+    color: #d97706;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+  .date-tag {
+    color: #6c757d;
+    font-size: 0.88rem;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 4rem 1rem;
+    color: #adb5bd;
+  }
+  .empty-state span { font-size: 3.5rem; display: block; margin-bottom: 1rem; }
+  .btn-back {
+    color: #6c757d;
+    font-size: 0.85rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-bottom: 1.25rem;
+  }
+  .btn-back:hover { color: #1a1a2e; }
+</style>
+
+<div class="container py-4" style="max-width: 760px;">
+
+  <a href="{{ url_for('calories.dashboard') }}" class="btn-back">← Back to Dashboard</a>
+
+  <div class="history-hero">
+    <h1>Calorie History</h1>
+    <p>All your logged meals in one place</p>
+  </div>
+
+  {% if logs %}
+    <div class="card history-card">
+      <table class="table history-table mb-0">
         <thead>
-            <tr>
-                <th>Date</th>
-                <th>Meal</th>
-                <th>Calories</th>
-            </tr>
+          <tr>
+            <th>Date</th>
+            <th>Meal</th>
+            <th>Calories</th>
+          </tr>
         </thead>
         <tbody>
-            {% for log in logs %}
-            <tr>
-                <td>{{ log.date }}</td>
-                <td>{{ log.meal_type | capitalize }}</td>
-                <td>{{ log.calories | round(0) | int }} kcal</td>
-            </tr>
-            {% endfor %}
+          {% for log in logs %}
+          <tr>
+            <td class="date-tag">{{ log.date }}</td>
+            <td><span class="meal-badge">{{ log.meal_type }}</span></td>
+            <td class="kcal-tag">{{ log.calories | round(0) | int }} kcal</td>
+          </tr>
+          {% endfor %}
         </tbody>
-    </table>
-{% else %}
-    <p>No calorie history yet.</p>
-{% endif %}
+      </table>
+    </div>
+  {% else %}
+    <div class="card history-card">
+      <div class="empty-state">
+        <span>🍽️</span>
+        <p class="fw-semibold fs-5 mb-2">No calorie history yet</p>
+        <p class="text-muted mb-4">Start logging your meals from the dashboard.</p>
+        <a href="{{ url_for('calories.dashboard') }}" class="btn btn-dark rounded-3">Go to Dashboard</a>
+      </div>
+    </div>
+  {% endif %}
 
-<a href="{{ url_for('calories.dashboard') }}">Back to Dashboard</a>
+</div>
 {% endblock %}
