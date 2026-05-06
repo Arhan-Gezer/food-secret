@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="min-height: calc(100vh - 64px); display: flex; flex-direction: column;">
+
+  <!-- Hero Section -->
+  <div style="background: linear-gradient(135deg, var(--green-900) 0%, var(--green-700) 100%); padding: 5rem 2rem; text-align: center; color: white;">
+    <div style="max-width: 700px; margin: 0 auto;">
+      <div style="font-size: 3rem; margin-bottom: 1rem;">🌿</div>
+      <h1 style="font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 700; margin-bottom: 1rem; color: white;">
+        Your Nutrition, <br>Your Secret.
+      </h1>
+      <p style="font-size: 1.1rem; color: rgba(255,255,255,0.75); margin-bottom: 2.5rem; line-height: 1.7;">
+        Track calories, discover healthy recipes, and order meals — all in one place.
+      </p>
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="{{ url_for('auth.register') }}" 
+           style="background: white; color: var(--green-800); font-weight: 700; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-size: 1rem; transition: all 0.2s;">
+          Get Started — It's Free
+        </a>
+        <a href="{{ url_for('auth.login') }}" 
+           style="background: transparent; color: white; font-weight: 600; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-size: 1rem; border: 2px solid rgba(255,255,255,0.4); transition: all 0.2s;">
+          Sign In
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features Section -->
+  <div style="padding: 4rem 2rem; background: var(--cream-100);">
+    <div style="max-width: 1000px; margin: 0 auto;">
+      <h2 style="text-align: center; font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--text-primary); margin-bottom: 0.5rem;">
+        Everything you need
+      </h2>
+      <p style="text-align: center; color: var(--text-muted); margin-bottom: 3rem;">
+        One platform for your complete nutrition journey
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+
+        <!-- Card 1 -->
+        <div style="background: white; border-radius: 16px; padding: 2rem; border: 1px solid var(--border); box-shadow: var(--shadow-sm);">
+          <div style="font-size: 2.5rem; margin-bottom: 1rem;">🔥</div>
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--text-primary); margin-bottom: 0.75rem;">
+            Calorie Tracking
+          </h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">
+            Set your daily calorie goal based on your body metrics. Log meals simply or by macros — protein, carbs, and fat.
+          </p>
+        </div>
+
+        <!-- Card 2 -->
+        <div style="background: white; border-radius: 16px; padding: 2rem; border: 1px solid var(--border); box-shadow: var(--shadow-sm);">
+          <div style="font-size: 2.5rem; margin-bottom: 1rem;">🍽️</div>
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--text-primary); margin-bottom: 0.75rem;">
+            Recipe Discovery
+          </h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">
+            Browse and create recipes shared by the community. Filter by budget and calories to find meals that fit your goals.
+          </p>
+        </div>
+
+        <!-- Card 3 -->
+        <div style="background: white; border-radius: 16px; padding: 2rem; border: 1px solid var(--border); box-shadow: var(--shadow-sm);">
+          <div style="font-size: 2.5rem; margin-bottom: 1rem;">🛵</div>
+          <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--text-primary); margin-bottom: 0.75rem;">
+            Meal Ordering
+          </h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">
+            No time to cook? Order directly from recipes. Track your order status from placement to delivery.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA Section -->
+  <div style="background: var(--green-800); padding: 4rem 2rem; text-align: center; color: white;">
+    <h2 style="font-family: 'Playfair Display', serif; font-size: 2rem; color: white; margin-bottom: 1rem;">
+      Ready to start your journey?
+    </h2>
+    <p style="color: rgba(255,255,255,0.7); margin-bottom: 2rem;">
+      Join Food Secret today and take control of your nutrition.
+    </p>
+    <a href="{{ url_for('auth.register') }}" 
+       style="background: white; color: var(--green-800); font-weight: 700; padding: 14px 36px; border-radius: 8px; text-decoration: none; font-size: 1rem;">
+      Create Free Account
+    </a>
+  </div>
+
+</div>
+{% endblock %}

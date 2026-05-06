@@ -56,6 +56,14 @@ def log():
             if not calories_val:
                 flash(MSG_MISSING_FIELDS, FLASH_ERROR)
                 return redirect(url_for("calories.dashboard"))
+            try:
+                calories_float = float(calories_val)
+                if calories_float <= 0:
+                    flash("Calories must be greater than 0.", FLASH_ERROR)
+                    return redirect(url_for("calories.dashboard"))
+            except ValueError:
+                flash("Please enter a valid number.", FLASH_ERROR)
+                return redirect(url_for("calories.dashboard"))
             entry = FoodEntryFactory.create(ENTRY_SIMPLE, calories=calories_val)
         else:
             protein = request.form.get("protein", "").strip()
@@ -63,6 +71,13 @@ def log():
             fat = request.form.get("fat", "").strip()
             if not all([protein, carbs, fat]):
                 flash(MSG_MISSING_FIELDS, FLASH_ERROR)
+                return redirect(url_for("calories.dashboard"))
+            try:
+                if float(protein) < 0 or float(carbs) < 0 or float(fat) < 0:
+                    flash("Macro values cannot be negative.", FLASH_ERROR)
+                    return redirect(url_for("calories.dashboard"))
+            except ValueError:
+                flash("Please enter valid numbers.", FLASH_ERROR)
                 return redirect(url_for("calories.dashboard"))
             entry = FoodEntryFactory.create(
                 ENTRY_MACRO, protein=protein, carbs=carbs, fat=fat

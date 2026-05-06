@@ -113,6 +113,7 @@
   <div class="card form-card">
     <div class="card-body p-4">
       <form method="post" action="{{ url_for('recipes.create_recipe_view') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <p class="section-divider">Basic Info</p>
 

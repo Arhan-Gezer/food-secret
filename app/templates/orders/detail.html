@@ -158,6 +158,7 @@
     <div class="card-body p-4">
       <p class="section-title">Update Status</p>
       <form method="POST" action="{{ url_for('orders.update', order_id=order.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="mb-3">
           <label for="status" class="form-label">New Status</label>
           <select name="status" id="status" class="form-select">

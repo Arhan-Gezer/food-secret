@@ -7,17 +7,6 @@ from app.services.calorie_service import log_calories, get_daily_summary, get_re
 from app.constants import ENTRY_SIMPLE, ENTRY_MACRO
 
 
-@pytest.fixture
-def app():
-    app = create_app()
-    app.config.update({
-        "TESTING": True,
-        "DATABASE": ":memory:",
-    })
-    with app.app_context():
-        init_db()
-        yield app
-
 
 @pytest.fixture
 def client(app):
@@ -74,45 +63,48 @@ def test_macro_entry_zero_values():
 # --- Calorie Service Tests ---
 
 def test_log_calories_success(app):
-    from app.database import get_db
-    db = get_db()
-    db.execute(
-        "INSERT INTO users (email, password_hash, name) VALUES (?, ?, ?)",
-        ("test@test.com", "hash", "Test User")
-    )
-    db.execute(
-        """INSERT INTO user_profiles
-           (user_id, weight, height, target_weight, age, gender, daily_calorie_goal)
-           VALUES (1, 70, 175, 65, 25, 'male', 1724)"""
-    )
-    db.commit()
-    log_calories(1, 500, "breakfast")
-    total = get_daily_summary(1, __import__("datetime").date.today().isoformat())
-    assert total == 500.0
+    with app.app_context():
+        from app.database import get_db
+        db = get_db()
+        db.execute(
+            "INSERT INTO users (email, password_hash, name) VALUES (?, ?, ?)",
+            ("test@test.com", "hash", "Test User")
+        )
+        db.execute(
+            """INSERT INTO user_profiles
+               (user_id, weight, height, target_weight, age, gender, daily_calorie_goal)
+               VALUES (1, 70, 175, 65, 25, 'male', 1724)"""
+        )
+        db.commit()
+        log_calories(1, 500, "breakfast")
+        total = get_daily_summary(1, __import__("datetime").date.today().isoformat())
+        assert total == 500.0
 
 
 def test_get_daily_summary_empty(app):
-    total = get_daily_summary(999, "2026-01-01")
-    assert total == 0.0
+    with app.app_context():
+        total = get_daily_summary(999, "2026-01-01")
+        assert total == 0.0
 
 
 def test_get_remaining_calories(app):
-    from app.database import get_db
-    db = get_db()
-    db.execute(
-        "INSERT INTO users (email, password_hash, name) VALUES (?, ?, ?)",
-        ("test2@test.com", "hash", "Test User 2")
-    )
-    db.execute(
-        """INSERT INTO user_profiles
-           (user_id, weight, height, target_weight, age, gender, daily_calorie_goal)
-           VALUES (1, 70, 175, 65, 25, 'male', 2000)"""
-    )
-    db.commit()
-    log_calories(1, 500, "breakfast")
-    today = __import__("datetime").date.today().isoformat()
-    remaining = get_remaining_calories(1, today)
-    assert remaining == 1500.0
+    with app.app_context():
+        from app.database import get_db
+        db = get_db()
+        db.execute(
+            "INSERT INTO users (email, password_hash, name) VALUES (?, ?, ?)",
+            ("test2@test.com", "hash", "Test User 2")
+        )
+        db.execute(
+            """INSERT INTO user_profiles
+               (user_id, weight, height, target_weight, age, gender, daily_calorie_goal)
+               VALUES (1, 70, 175, 65, 25, 'male', 2000)"""
+        )
+        db.commit()
+        log_calories(1, 500, "breakfast")
+        today = __import__("datetime").date.today().isoformat()
+        remaining = get_remaining_calories(1, today)
+        assert remaining == 1500.0
 
 # --- Route Tests ---
 
