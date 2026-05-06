@@ -41,6 +41,18 @@ def register():
         if not all([name, email, password, weight, height, target_weight, age, gender]):
             flash(MSG_MISSING_FIELDS, FLASH_ERROR)
             return render_template("auth/register.html", genders=GENDERS)
+        
+        try:
+            weight_val = float(weight)
+            height_val = float(height)
+            target_weight_val = float(target_weight)
+            age_val = int(age)
+            if weight_val <= 0 or height_val <= 0 or target_weight_val <= 0 or age_val <= 0:
+                flash("Please enter valid positive values.", FLASH_ERROR)
+                return render_template("auth/register.html", genders=GENDERS)
+        except ValueError:
+            flash("Please enter valid numbers.", FLASH_ERROR)
+            return render_template("auth/register.html", genders=GENDERS)
 
         db = get_db()
 
@@ -110,7 +122,7 @@ def login():
         session[SESSION_NAME] = user.name
 
         flash(MSG_LOGIN_SUCCESS, FLASH_SUCCESS)
-        return redirect(url_for("auth.login"))
+        return redirect(url_for("calories.dashboard"))
 
     return render_template("auth/login.html")
 
