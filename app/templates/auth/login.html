@@ -1,23 +1,49 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="form-container">
-    <h2>Login</h2>
-
-    <form method="POST" action="{{ url_for('auth.login') }}">
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" required>
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-card-header">
+            <h1>Welcome back</h1>
+            <p>Sign in to track your nutrition journey</p>
         </div>
+        <div class="auth-card-body">
+            <form method="POST" action="{{ url_for('auth.login') }}">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email address</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        class="form-control"
+                        placeholder="you@example.com"
+                        required
+                        autocomplete="email"
+                    >
+                </div>
 
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="form-control"
+                        placeholder="••••••••"
+                        required
+                        autocomplete="current-password"
+                    >
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary w-100">Sign in</button>
+                </div>
+            </form>
+
+            <div class="auth-footer">
+                Don't have an account? <a href="{{ url_for('auth.register') }}">Create one</a>
+            </div>
         </div>
-
-        <button type="submit">Login</button>
-    </form>
-
-    <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
+    </div>
 </div>
 {% endblock %}

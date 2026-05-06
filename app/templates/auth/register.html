@@ -1,58 +1,130 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="form-container">
-    <h2>Register</h2>
-
-    <form method="POST" action="{{ url_for('auth.register') }}">
-        <div class="form-group">
-            <label for="name">Full Name</label>
-            <input type="text" id="name" name="name" required>
+<div class="auth-wrapper">
+    <div class="auth-card" style="max-width: 560px;">
+        <div class="auth-card-header">
+            <h1>Create account</h1>
+            <p>Start your personalised nutrition journey today</p>
         </div>
+        <div class="auth-card-body">
+            <form method="POST" action="{{ url_for('auth.register') }}">
 
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" required>
+                <div class="form-group">
+                    <label class="form-label" for="name">Full name</label>
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        class="form-control"
+                        placeholder="Jane Smith"
+                        required
+                        autocomplete="name"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="email">Email address</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        class="form-control"
+                        placeholder="you@example.com"
+                        required
+                        autocomplete="email"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="form-control"
+                        placeholder="Choose a strong password"
+                        required
+                        autocomplete="new-password"
+                    >
+                </div>
+
+                <hr>
+
+                <p class="text-muted mb-3" style="font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em;">Body metrics</p>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label" for="weight">Current weight (kg)</label>
+                        <input
+                            type="number"
+                            id="weight"
+                            name="weight"
+                            class="form-control"
+                            placeholder="70"
+                            step="0.1"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="height">Height (cm)</label>
+                        <input
+                            type="number"
+                            id="height"
+                            name="height"
+                            class="form-control"
+                            placeholder="170"
+                            step="0.1"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="target_weight">Target weight (kg)</label>
+                        <input
+                            type="number"
+                            id="target_weight"
+                            name="target_weight"
+                            class="form-control"
+                            placeholder="65"
+                            step="0.1"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="age">Age</label>
+                        <input
+                            type="number"
+                            id="age"
+                            name="age"
+                            class="form-control"
+                            placeholder="28"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="gender">Gender</label>
+                    <select id="gender" name="gender" class="form-select" required>
+                        <option value="" disabled selected>Select gender</option>
+                        {% for gender in genders %}
+                            <option value="{{ gender }}">{{ gender|capitalize }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary w-100">Create account</button>
+                </div>
+            </form>
+
+            <div class="auth-footer">
+                Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-
-        <div class="form-group">
-            <label for="weight">Current Weight (kg)</label>
-            <input type="number" id="weight" name="weight" step="0.1" required>
-        </div>
-
-        <div class="form-group">
-            <label for="height">Height (cm)</label>
-            <input type="number" id="height" name="height" step="0.1" required>
-        </div>
-
-        <div class="form-group">
-            <label for="target_weight">Target Weight (kg)</label>
-            <input type="number" id="target_weight" name="target_weight" step="0.1" required>
-        </div>
-
-        <div class="form-group">
-            <label for="age">Age</label>
-            <input type="number" id="age" name="age" required>
-        </div>
-
-        <div class="form-group">
-            <label for="gender">Gender</label>
-            <select id="gender" name="gender" required>
-                <option value="">Select gender</option>
-                {% for gender in genders %}
-                    <option value="{{ gender }}">{{ gender|capitalize }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <button type="submit">Register</button>
-    </form>
-
-    <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></p>
+    </div>
 </div>
 {% endblock %}

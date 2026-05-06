@@ -3,71 +3,163 @@
 {% block title %}Create Recipe — Food Secret{% endblock %}
 
 {% block content %}
-<div class="container py-4" style="max-width: 640px;">
+<style>
+  .create-hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-radius: 1.25rem;
+    padding: 2rem 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+  }
+  .create-hero::after {
+    content: "🥘";
+    position: absolute;
+    right: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 5rem;
+    opacity: 0.12;
+  }
+  .create-hero h1 {
+    font-family: 'Georgia', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    margin: 0;
+  }
+  .form-card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+  .form-label {
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: #1a1a2e;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .form-control {
+    border-radius: 0.6rem;
+    border: 1.5px solid #e0e0e0;
+    font-size: 0.95rem;
+    padding: 0.55rem 0.85rem;
+    transition: border-color 0.2s;
+  }
+  .form-control:focus {
+    border-color: #0f3460;
+    box-shadow: 0 0 0 3px rgba(15,52,96,0.1);
+  }
+  .ingredient-row {
+    background: #f8f9fa;
+    border-radius: 0.6rem;
+    padding: 0.6rem 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  .btn-add {
+    border: 1.5px dashed #0f3460;
+    color: #0f3460;
+    background: transparent;
+    border-radius: 0.6rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 0.45rem 1rem;
+    transition: all 0.2s;
+  }
+  .btn-add:hover {
+    background: #0f3460;
+    color: #fff;
+  }
+  .btn-save {
+    background: #e94560;
+    color: #fff;
+    border: none;
+    border-radius: 0.6rem;
+    font-weight: 700;
+    padding: 0.65rem 2rem;
+    font-size: 1rem;
+    transition: background 0.2s;
+  }
+  .btn-save:hover { background: #c73652; color: #fff; }
+  .section-divider {
+    font-family: 'Georgia', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+</style>
 
-  <h2 class="fw-bold mb-4">🥘 Create a New Recipe</h2>
+<div class="container py-4" style="max-width: 660px;">
+
+  {# ── Hero ── #}
+  <div class="create-hero">
+    <h1>Create a New Recipe</h1>
+  </div>
 
   {# ── Flash messages ── #}
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% for category, message in messages %}
-      <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+      <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show rounded-3" role="alert">
         {{ message }}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
     {% endfor %}
   {% endwith %}
 
-  <div class="card shadow-sm">
-    <div class="card-body">
+  <div class="card form-card">
+    <div class="card-body p-4">
       <form method="post" action="{{ url_for('recipes.create_recipe_view') }}">
 
-        {# Title #}
+        <p class="section-divider">Basic Info</p>
+
         <div class="mb-3">
-          <label for="title" class="form-label fw-semibold">Recipe Title</label>
+          <label for="title" class="form-label">Recipe Title</label>
           <input type="text" id="title" name="title" class="form-control"
                  placeholder="e.g. Zucchini Pasta" required>
         </div>
 
-        {# Calories #}
-        <div class="mb-3">
-          <label for="calories" class="form-label fw-semibold">Total Calories (kcal)</label>
-          <input type="number" id="calories" name="calories" class="form-control"
-                 placeholder="e.g. 450" min="0" step="0.1" required>
+        <div class="row g-3 mb-3">
+          <div class="col-6">
+            <label for="calories" class="form-label">Calories (kcal)</label>
+            <input type="number" id="calories" name="calories" class="form-control"
+                   placeholder="e.g. 450" min="0" step="0.1" required>
+          </div>
+          <div class="col-6">
+            <label for="budget" class="form-label">Budget (₺)</label>
+            <input type="number" id="budget" name="budget" class="form-control"
+                   placeholder="e.g. 35.00" min="0" step="0.01" required>
+          </div>
         </div>
 
-        {# Budget #}
-        <div class="mb-3">
-          <label for="budget" class="form-label fw-semibold">Estimated Budget (₺)</label>
-          <input type="number" id="budget" name="budget" class="form-control"
-                 placeholder="e.g. 35.00" min="0" step="0.01" required>
-        </div>
+        <p class="section-divider mt-4">Ingredients</p>
 
-        {# Ingredients — dynamic rows #}
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Ingredients</label>
-          <div id="ingredients-container">
-            <div class="row g-2 mb-2 ingredient-row">
-              <div class="col-7">
-                <input type="text" name="ingredient_name[]" class="form-control"
-                       placeholder="Ingredient name">
-              </div>
-              <div class="col-4">
-                <input type="text" name="ingredient_amount[]" class="form-control"
-                       placeholder="Amount (e.g. 200g)">
-              </div>
-              <div class="col-1 d-flex align-items-center">
-                <button type="button" class="btn btn-outline-danger btn-sm remove-row" title="Remove">✕</button>
-              </div>
+        <div id="ingredients-container">
+          <div class="ingredient-row row g-2 align-items-center">
+            <div class="col-7">
+              <input type="text" name="ingredient_name[]" class="form-control"
+                     placeholder="Ingredient name">
+            </div>
+            <div class="col-4">
+              <input type="text" name="ingredient_amount[]" class="form-control"
+                     placeholder="Amount (e.g. 200g)">
+            </div>
+            <div class="col-1 text-center">
+              <button type="button" class="btn btn-link text-danger p-0 remove-row" title="Remove">✕</button>
             </div>
           </div>
-          <button type="button" id="add-ingredient" class="btn btn-outline-secondary btn-sm mt-1">
-            + Add Ingredient
-          </button>
         </div>
 
-        <div class="d-flex gap-2 mt-4">
-          <button type="submit" class="btn btn-success">Save Recipe</button>
-          <a href="{{ url_for('recipes.list_recipes') }}" class="btn btn-outline-secondary">Cancel</a>
+        <button type="button" id="add-ingredient" class="btn btn-add mt-2 mb-4">
+          + Add Ingredient
+        </button>
+
+        <div class="d-flex gap-2 pt-2 border-top">
+          <button type="submit" class="btn-save btn">Save Recipe</button>
+          <a href="{{ url_for('recipes.list_recipes') }}" class="btn btn-outline-secondary rounded-3">Cancel</a>
         </div>
 
       </form>
@@ -77,11 +169,10 @@
 </div>
 
 <script>
-  // Add ingredient row
   document.getElementById("add-ingredient").addEventListener("click", function () {
     const container = document.getElementById("ingredients-container");
     const row = document.createElement("div");
-    row.className = "row g-2 mb-2 ingredient-row";
+    row.className = "ingredient-row row g-2 align-items-center";
     row.innerHTML = `
       <div class="col-7">
         <input type="text" name="ingredient_name[]" class="form-control" placeholder="Ingredient name">
@@ -89,14 +180,13 @@
       <div class="col-4">
         <input type="text" name="ingredient_amount[]" class="form-control" placeholder="Amount (e.g. 200g)">
       </div>
-      <div class="col-1 d-flex align-items-center">
-        <button type="button" class="btn btn-outline-danger btn-sm remove-row" title="Remove">✕</button>
+      <div class="col-1 text-center">
+        <button type="button" class="btn btn-link text-danger p-0 remove-row" title="Remove">✕</button>
       </div>
     `;
     container.appendChild(row);
   });
 
-  // Remove ingredient row
   document.getElementById("ingredients-container").addEventListener("click", function (e) {
     if (e.target.classList.contains("remove-row")) {
       const rows = document.querySelectorAll(".ingredient-row");

@@ -3,83 +3,210 @@
 {% block title %}Recipes — Food Secret{% endblock %}
 
 {% block content %}
+<style>
+  .page-hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-radius: 1.25rem;
+    padding: 2.5rem 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .page-hero::before {
+    content: "🍽️";
+    position: absolute;
+    right: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 6rem;
+    opacity: 0.12;
+  }
+  .page-hero h1 {
+    font-family: 'Georgia', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.25rem;
+  }
+  .page-hero p {
+    color: rgba(255,255,255,0.6);
+    margin: 0;
+  }
+
+  .search-filter-bar {
+    background: #fff;
+    border-radius: 1rem;
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    margin-bottom: 1.75rem;
+  }
+
+  .recipe-card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+  }
+  .recipe-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.13);
+  }
+  .recipe-card .card-header-accent {
+    height: 6px;
+    background: linear-gradient(90deg, #e94560, #f5a623);
+  }
+  .recipe-card .card-body {
+    padding: 1.4rem;
+  }
+  .recipe-card .card-title {
+    font-family: 'Georgia', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 0.6rem;
+  }
+  .badge-kcal {
+    background: #fff3cd;
+    color: #856404;
+    font-weight: 600;
+    font-size: 0.78rem;
+    padding: 0.3em 0.7em;
+    border-radius: 2rem;
+  }
+  .badge-budget {
+    background: #d1f2eb;
+    color: #0b5345;
+    font-weight: 600;
+    font-size: 0.78rem;
+    padding: 0.3em 0.7em;
+    border-radius: 2rem;
+  }
+  .ingredients-preview {
+    font-size: 0.8rem;
+    color: #6c757d;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .btn-view {
+    background: #1a1a2e;
+    color: #fff;
+    border: none;
+    border-radius: 0.6rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.45rem 1rem;
+    transition: background 0.2s;
+  }
+  .btn-view:hover {
+    background: #e94560;
+    color: #fff;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 4rem 1rem;
+    color: #adb5bd;
+  }
+  .empty-state .empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+</style>
+
 <div class="container py-4">
 
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold mb-0">🍽️ Recipes</h2>
-    <a href="{{ url_for('recipes.create_recipe_view') }}" class="btn btn-success">
-      + Add Recipe
+  {# ── Hero ── #}
+  <div class="page-hero d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+      <h1>Recipes</h1>
+      <p>Discover and manage your favourite meals</p>
+    </div>
+    <a href="{{ url_for('recipes.create_recipe_view') }}" class="btn btn-warning fw-bold px-4">
+      + New Recipe
     </a>
   </div>
-
-  {# ── Search bar ── #}
-  <form method="get" action="{{ url_for('recipes.search') }}" class="mb-3">
-    <div class="input-group">
-      <input type="text" name="q" class="form-control"
-             placeholder="Search recipes…"
-             value="{{ search_query or '' }}">
-      <button class="btn btn-outline-secondary" type="submit">Search</button>
-    </div>
-  </form>
-
-  {# ── Filter bar ── #}
-  <form method="get" action="{{ url_for('recipes.list_recipes') }}" class="row g-2 mb-4">
-    <div class="col-auto">
-      <input type="number" name="budget" class="form-control" placeholder="Max budget (₺)"
-             value="{{ filter_budget or '' }}" min="0" step="0.01">
-    </div>
-    <div class="col-auto">
-      <input type="number" name="max_cal" class="form-control" placeholder="Max calories"
-             value="{{ filter_max_cal or '' }}" min="0">
-    </div>
-    <div class="col-auto">
-      <button type="submit" class="btn btn-primary">Filter</button>
-      <a href="{{ url_for('recipes.list_recipes') }}" class="btn btn-outline-secondary ms-1">Clear</a>
-    </div>
-  </form>
 
   {# ── Flash messages ── #}
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% for category, message in messages %}
-      <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+      <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show rounded-3" role="alert">
         {{ message }}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
     {% endfor %}
   {% endwith %}
 
-  {# ── Recipe cards ── #}
+  {# ── Search + Filter ── #}
+  <div class="search-filter-bar">
+    <div class="row g-2 align-items-end">
+      <div class="col-12 col-md-5">
+        <form method="get" action="{{ url_for('recipes.search') }}">
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0">🔍</span>
+            <input type="text" name="q" class="form-control border-start-0 ps-0"
+                   placeholder="Search recipes…" value="{{ search_query or '' }}">
+            <button class="btn btn-dark" type="submit">Search</button>
+          </div>
+        </form>
+      </div>
+      <div class="col-12 col-md-7">
+        <form method="get" action="{{ url_for('recipes.list_recipes') }}" class="d-flex gap-2 flex-wrap">
+          <input type="number" name="budget" class="form-control" style="max-width:160px;"
+                 placeholder="Max budget (₺)" value="{{ filter_budget or '' }}" min="0" step="0.01">
+          <input type="number" name="max_cal" class="form-control" style="max-width:160px;"
+                 placeholder="Max calories" value="{{ filter_max_cal or '' }}" min="0">
+          <button type="submit" class="btn btn-outline-dark">Filter</button>
+          <a href="{{ url_for('recipes.list_recipes') }}" class="btn btn-outline-secondary">Clear</a>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  {# ── Recipe Cards ── #}
   {% if recipes %}
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
       {% for recipe in recipes %}
         <div class="col">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
+          <div class="card recipe-card h-100">
+            <div class="card-header-accent"></div>
+            <div class="card-body d-flex flex-column">
               <h5 class="card-title">{{ recipe.title }}</h5>
-              <p class="card-text text-muted small mb-1">
-                🔥 {{ recipe.calorie_amount | int }} kcal &nbsp;|&nbsp; ₺{{ "%.2f" | format(recipe.budget) }}
-              </p>
-              <p class="card-text small text-muted">
-                {% if recipe.ingredients %}
-                  <strong>Ingredients:</strong>
-                  {{ recipe.ingredients | map(attribute='name') | join(', ') }}
-                {% endif %}
-              </p>
-            </div>
-            <div class="card-footer bg-transparent border-top-0">
-              <a href="{{ url_for('recipes.recipe_detail', recipe_id=recipe.id) }}"
-                 class="btn btn-sm btn-outline-primary w-100">View Details</a>
+              <div class="d-flex gap-2 mb-3">
+                <span class="badge-kcal">🔥 {{ recipe.calorie_amount | int }} kcal</span>
+                <span class="badge-budget">₺{{ "%.2f" | format(recipe.budget) }}</span>
+              </div>
+              {% if recipe.ingredients %}
+                <p class="ingredients-preview mb-3">
+                  {{ recipe.ingredients | map(attribute='name') | join(' · ') }}
+                </p>
+              {% endif %}
+              <div class="mt-auto">
+                <a href="{{ url_for('recipes.recipe_detail', recipe_id=recipe.id) }}"
+                   class="btn btn-view w-100">View Recipe →</a>
+              </div>
             </div>
           </div>
         </div>
       {% endfor %}
     </div>
   {% else %}
-    <div class="text-center text-muted py-5">
-      <p class="fs-5">No recipes found.</p>
+    <div class="empty-state">
+      <span class="empty-icon">🥗</span>
+      <p class="fs-5 fw-semibold mb-2">No recipes found</p>
+      <p class="mb-4 text-muted">
+        {% if search_query %}
+          Try a different search term.
+        {% else %}
+          Be the first to add a delicious recipe!
+        {% endif %}
+      </p>
       {% if not search_query %}
-        <a href="{{ url_for('recipes.create_recipe_view') }}" class="btn btn-success mt-2">
-          Be the first to add one!
+        <a href="{{ url_for('recipes.create_recipe_view') }}" class="btn btn-warning fw-bold px-4">
+          Add Your First Recipe
         </a>
       {% endif %}
     </div>
