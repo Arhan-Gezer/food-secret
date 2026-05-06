@@ -120,3 +120,7 @@ def logout():
     session.clear()
     flash(MSG_LOGOUT_SUCCESS, FLASH_SUCCESS)
     return redirect(url_for("auth.login"))
+
+@auth_bp.route("/")
+def index():
+    return redirect(url_for("auth.login"))
