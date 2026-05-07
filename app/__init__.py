@@ -8,7 +8,7 @@ csrf = CSRFProtect()
 
 
 def create_app():
-    app = Flask(__name__, instance_relative_config=True, static_folder='../static')
+    app = Flask(__name__, instance_relative_config=True, static_folder='../static', static_url_path='/static')
     csrf.init_app(app)
 
     app.config.from_mapping(
