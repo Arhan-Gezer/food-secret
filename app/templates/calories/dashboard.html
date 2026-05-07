@@ -1,97 +1,282 @@
 {% extends "base.html" %}
 
+{% block title %}Dashboard — Food Secret{% endblock %}
+
 {% block content %}
-<h2>Dashboard</h2>
+<style>
+  .dash-hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-radius: 1.25rem;
+    padding: 2rem 2rem;
+    margin-bottom: 2rem;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .dash-hero::after {
+    content: "🔥";
+    position: absolute;
+    right: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 5.5rem;
+    opacity: 0.12;
+  }
+  .dash-hero h1 {
+    font-family: 'Georgia', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+  }
+  .dash-hero p { color: rgba(255,255,255,0.6); margin: 0; }
 
-{% if profile %}
-<div class="stats-box">
-    <p><strong>Daily Goal:</strong> {{ profile.daily_calorie_goal | round(0) | int }} kcal</p>
-    <p><strong>Consumed Today:</strong> {{ daily_total | round(0) | int }} kcal</p>
-    <p><strong>Remaining:</strong> {{ remaining | round(0) | int }} kcal</p>
+  .stat-card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    text-align: center;
+    padding: 1.5rem 1rem;
+  }
+  .stat-card .stat-value {
+    font-family: 'Georgia', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+  .stat-card .stat-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6c757d;
+    font-weight: 600;
+  }
+  .stat-goal   { background: #eef2ff; }
+  .stat-goal   .stat-value { color: #4f46e5; }
+  .stat-eaten  { background: #fff3cd; }
+  .stat-eaten  .stat-value { color: #d97706; }
+  .stat-remain { background: #d1fae5; }
+  .stat-remain .stat-value { color: #059669; }
 
-    <div class="progress-bar-container">
-        <div class="progress-bar" style="width: {{ [((daily_total / profile.daily_calorie_goal) * 100), 100] | min }}%"></div>
+  .progress-wrap {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .custom-progress {
+    height: 14px;
+    border-radius: 2rem;
+    background: #f0f0f0;
+    overflow: hidden;
+  }
+  .custom-progress-bar {
+    height: 100%;
+    border-radius: 2rem;
+    background: linear-gradient(90deg, #e94560, #f5a623);
+    transition: width 0.6s ease;
+  }
+
+  .log-card, .history-card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+  .section-title {
+    font-family: 'Georgia', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 1.25rem;
+  }
+  .form-label {
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: #1a1a2e;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .form-control, .form-select {
+    border-radius: 0.6rem;
+    border: 1.5px solid #e0e0e0;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+  }
+  .form-control:focus, .form-select:focus {
+    border-color: #0f3460;
+    box-shadow: 0 0 0 3px rgba(15,52,96,0.1);
+  }
+  .btn-log {
+    background: #e94560;
+    color: #fff;
+    border: none;
+    border-radius: 0.6rem;
+    font-weight: 700;
+    padding: 0.6rem 2rem;
+    transition: background 0.2s;
+  }
+  .btn-log:hover { background: #c73652; color: #fff; }
+
+  .meal-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.93rem;
+  }
+  .meal-row:last-child { border-bottom: none; }
+  .meal-badge {
+    background: #f0f4ff;
+    color: #4f46e5;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2em 0.6em;
+    border-radius: 1rem;
+    text-transform: capitalize;
+  }
+  .kcal-tag {
+    color: #d97706;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+</style>
+
+<div class="container py-4">
+
+  {# ── Hero ── #}
+  <div class="dash-hero">
+    <h1>Calorie Dashboard</h1>
+    <p>Track your daily nutrition</p>
+  </div>
+
+  {% if profile %}
+  {# ── Stat Cards ── #}
+  <div class="row g-3 mb-3">
+    <div class="col-4">
+      <div class="stat-card stat-goal">
+        <div class="stat-value">{{ profile.daily_calorie_goal | round(0) | int }}</div>
+        <div class="stat-label">Daily Goal</div>
+      </div>
     </div>
-</div>
-{% endif %}
+    <div class="col-4">
+      <div class="stat-card stat-eaten">
+        <div class="stat-value">{{ daily_total | round(0) | int }}</div>
+        <div class="stat-label">Consumed</div>
+      </div>
+    </div>
+    <div class="col-4">
+      <div class="stat-card stat-remain">
+        <div class="stat-value">{{ remaining | round(0) | int }}</div>
+        <div class="stat-label">Remaining</div>
+      </div>
+    </div>
+  </div>
 
-<div class="form-container" style="margin-top: 2rem;">
-    <h3>Log Calories</h3>
+  {# ── Progress Bar ── #}
+  <div class="progress-wrap">
+    <div class="d-flex justify-content-between mb-2">
+      <span class="fw-semibold" style="font-size:0.88rem;">Today's Progress</span>
+      <span class="fw-bold" style="font-size:0.88rem; color:#e94560;">
+        {{ [((daily_total / profile.daily_calorie_goal) * 100), 100] | min | round(0) | int }}%
+      </span>
+    </div>
+    <div class="custom-progress">
+      <div class="custom-progress-bar"
+           style="width: {{ [((daily_total / profile.daily_calorie_goal) * 100), 100] | min }}%">
+      </div>
+    </div>
+  </div>
+  {% endif %}
 
-    <form method="POST" action="{{ url_for('calories.log') }}">
-        <div class="form-group">
-            <label for="meal_type">Meal Type</label>
-            <select name="meal_type" id="meal_type" required>
+  <div class="row g-4">
+
+    {# ── Log Form ── #}
+    <div class="col-12 col-md-5">
+      <div class="card log-card h-100">
+        <div class="card-body p-4">
+          <p class="section-title">Log Calories</p>
+          <form method="POST" action="{{ url_for('calories.log') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="mb-3">
+              <label for="meal_type" class="form-label">Meal Type</label>
+              <select name="meal_type" id="meal_type" class="form-select" required>
                 <option value="">Select meal type</option>
                 {% for meal in meal_types %}
-                    <option value="{{ meal }}">{{ meal | capitalize }}</option>
+                  <option value="{{ meal }}">{{ meal | capitalize }}</option>
                 {% endfor %}
-            </select>
-        </div>
+              </select>
+            </div>
 
-        <div class="form-group">
-            <label for="entry_type">Entry Type</label>
-            <select name="entry_type" id="entry_type" onchange="toggleEntryType(this.value)">
+            <div class="mb-3">
+              <label for="entry_type" class="form-label">Entry Type</label>
+              <select name="entry_type" id="entry_type" class="form-select" onchange="toggleEntryType(this.value)">
                 <option value="simple">Simple (direct calories)</option>
-                <option value="macro">Macro (protein/carbs/fat)</option>
-            </select>
+                <option value="macro">Macro (protein / carbs / fat)</option>
+              </select>
+            </div>
+
+            <div id="simple-entry">
+              <div class="mb-3">
+                <label for="calories" class="form-label">Calories (kcal)</label>
+                <input type="number" name="calories" id="calories" class="form-control"
+                       step="0.1" min="1" placeholder="e.g. 350">
+              </div>
+            </div>
+
+            <div id="macro-entry" style="display:none;">
+              <div class="mb-2">
+                <label class="form-label">Protein (g)</label>
+                <input type="number" name="protein" class="form-control" step="0.1" min="0" placeholder="0">
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Carbs (g)</label>
+                <input type="number" name="carbs" class="form-control" step="0.1" min="0" placeholder="0">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Fat (g)</label>
+                <input type="number" name="fat" class="form-control" step="0.1" min="0" placeholder="0">
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-log w-100">Log Calories</button>
+          </form>
         </div>
+      </div>
+    </div>
 
-        <div id="simple-entry">
-            <div class="form-group">
-                <label for="calories">Calories (kcal)</label>
-                <input type="number" name="calories" id="calories" step="0.1" min="0">
+    {# ── Today's Log ── #}
+    <div class="col-12 col-md-7">
+      <div class="card history-card h-100">
+        <div class="card-body p-4">
+          <p class="section-title">Today's Log</p>
+          {% set today_logs = history | selectattr("date", "equalto", today) | list %}
+          {% if today_logs %}
+            {% for log in today_logs %}
+              <div class="meal-row">
+                <span class="meal-badge">{{ log.meal_type }}</span>
+                <span class="kcal-tag">{{ log.calories | round(0) | int }} kcal</span>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="text-center text-muted py-4">
+              <span style="font-size:2.5rem;">🍽️</span>
+              <p class="mt-2 mb-0">No entries for today yet.</p>
             </div>
+          {% endif %}
         </div>
+      </div>
+    </div>
 
-        <div id="macro-entry" style="display:none;">
-            <div class="form-group">
-                <label for="protein">Protein (g)</label>
-                <input type="number" name="protein" id="protein" step="0.1" min="0">
-            </div>
-            <div class="form-group">
-                <label for="carbs">Carbs (g)</label>
-                <input type="number" name="carbs" id="carbs" step="0.1" min="0">
-            </div>
-            <div class="form-group">
-                <label for="fat">Fat (g)</label>
-                <input type="number" name="fat" id="fat" step="0.1" min="0">
-            </div>
-        </div>
-
-        <button type="submit">Log Calories</button>
-    </form>
-</div>
-
-<div style="margin-top: 2rem;">
-    <h3>Today's Log</h3>
-    {% set today_logs = history | selectattr("date", "equalto", today) | list %}
-    {% if today_logs %}
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Meal</th>
-                    <th>Calories</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for log in today_logs %}
-                <tr>
-                    <td>{{ log.meal_type | capitalize }}</td>
-                    <td>{{ log.calories | round(0) | int }} kcal</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>No entries for today yet.</p>
-    {% endif %}
+  </div>
 </div>
 
 <script>
 function toggleEntryType(type) {
-    document.getElementById('simple-entry').style.display = type === 'simple' ? 'block' : 'none';
-    document.getElementById('macro-entry').style.display = type === 'macro' ? 'block' : 'none';
+  document.getElementById('simple-entry').style.display = type === 'simple' ? 'block' : 'none';
+  document.getElementById('macro-entry').style.display  = type === 'macro'  ? 'block' : 'none';
 }
 </script>
 {% endblock %}

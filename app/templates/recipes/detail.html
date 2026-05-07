@@ -1,40 +1,180 @@
 {% extends "base.html" %}
 
+{% block title %}{{ recipe.title }} — Food Secret{% endblock %}
+
 {% block content %}
-<a href="{{ url_for('recipes.list_recipes') }}">← Back to Recipes</a>
+<style>
+  .detail-hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-radius: 1.25rem;
+    padding: 2.5rem 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+  }
+  .detail-hero::after {
+    content: "🥘";
+    position: absolute;
+    right: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 6rem;
+    opacity: 0.12;
+  }
+  .detail-hero h1 {
+    font-family: 'Georgia', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+  .badge-kcal {
+    background: #fff3cd;
+    color: #856404;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 0.4em 0.9em;
+    border-radius: 2rem;
+  }
+  .badge-budget {
+    background: #d1f2eb;
+    color: #0b5345;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 0.4em 0.9em;
+    border-radius: 2rem;
+  }
+  .badge-date {
+    background: rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.85);
+    font-size: 0.8rem;
+    padding: 0.4em 0.9em;
+    border-radius: 2rem;
+  }
+  .ingredients-card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+  .ingredients-card .card-title {
+    font-family: 'Georgia', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a1a2e;
+  }
+  .ingredient-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.95rem;
+  }
+  .ingredient-item:last-child { border-bottom: none; }
+  .ingredient-item .amount {
+    color: #6c757d;
+    font-size: 0.85rem;
+  }
+  .action-card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+  .btn-calories {
+    background: #e94560;
+    color: #fff;
+    border: none;
+    border-radius: 0.6rem;
+    font-weight: 600;
+    padding: 0.6rem 1.25rem;
+    transition: background 0.2s;
+  }
+  .btn-calories:hover { background: #c73652; color: #fff; }
+  .btn-order {
+    background: #1a1a2e;
+    color: #fff;
+    border: none;
+    border-radius: 0.6rem;
+    font-weight: 600;
+    padding: 0.6rem 1.25rem;
+    transition: background 0.2s;
+  }
+  .btn-order:hover { background: #0f3460; color: #fff; }
+  .btn-back {
+    color: #6c757d;
+    font-size: 0.85rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-bottom: 1.25rem;
+  }
+  .btn-back:hover { color: #1a1a2e; }
+</style>
 
-<div class="form-container" style="max-width: 720px; margin-top: 1rem;">
-    <h2>{{ recipe.title }}</h2>
+<div class="container py-4" style="max-width: 760px;">
 
-    <p><strong>Calories:</strong> {{ recipe.calorie_amount | int }} kcal</p>
-    <p><strong>Budget:</strong> {{ "%.2f" | format(recipe.budget) }} TL</p>
-    <p><strong>Created:</strong> {{ recipe.created_at[:10] }}</p>
+  {# ── Flash messages ── #}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show rounded-3" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endwith %}
 
-    <h4>Ingredients</h4>
-    {% if recipe.ingredients %}
-        <ul>
-            {% for item in recipe.ingredients %}
-                <li>{{ item.name }} {% if item.amount %} — {{ item.amount }}{% endif %}</li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No ingredients listed.</p>
-    {% endif %}
+  <a href="{{ url_for('recipes.list_recipes') }}" class="btn-back">← Back to Recipes</a>
 
-    <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
-        <form method="POST" action="{{ url_for('calories.log') }}">
-            <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
-            <input type="hidden" name="calories" value="{{ recipe.calorie_amount }}">
-            <input type="hidden" name="meal_type" value="lunch">
-            <input type="hidden" name="entry_type" value="simple">
-            <button type="submit">+ Add to My Calories</button>
-        </form>
-
-        <form method="POST" action="{{ url_for('orders.place') }}">
-            <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
-            <input type="hidden" name="restaurant_name" value="Food Secret Kitchen">
-            <button type="submit">Order This Meal</button>
-        </form>
+  {# ── Hero ── #}
+  <div class="detail-hero">
+    <h1>{{ recipe.title }}</h1>
+    <div class="d-flex flex-wrap gap-2">
+      <span class="badge-kcal">🔥 {{ recipe.calorie_amount | int }} kcal</span>
+      <span class="badge-budget">₺{{ "%.2f" | format(recipe.budget) }}</span>
+      <span class="badge-date">📅 {{ recipe.created_at[:10] }}</span>
     </div>
+  </div>
+
+  {# ── Ingredients ── #}
+  <div class="card ingredients-card mb-3">
+    <div class="card-body p-4">
+      <h5 class="card-title mb-3">🧂 Ingredients</h5>
+      {% if recipe.ingredients %}
+        {% for item in recipe.ingredients %}
+          <div class="ingredient-item">
+            <span>{{ item.name }}</span>
+            {% if item.amount %}
+              <span class="amount">{{ item.amount }}</span>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="text-muted mb-0">No ingredients listed.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {# ── Actions ── #}
+  <div class="card action-card">
+    <div class="card-body p-4">
+      <h6 class="fw-bold text-uppercase text-muted small mb-3 letter-spacing-1">Quick Actions</h6>
+      <div class="d-flex gap-3 flex-wrap">
+        <form method="POST" action="/calories/log">
+          <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
+          <input type="hidden" name="calories"  value="{{ recipe.calorie_amount }}">
+          <input type="hidden" name="meal_type" value="lunch">
+          <input type="hidden" name="entry_type" value="simple">
+          <button type="submit" class="btn-calories">➕ Add to My Calories</button>
+        </form>
+        <form method="POST" action="{{ url_for('orders.place') }}">
+          <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
+          <input type="hidden" name="restaurant_name" value="Food Secret Kitchen">
+          <button type="submit" class="btn-order">🛵 Order This Meal</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
 </div>
 {% endblock %}

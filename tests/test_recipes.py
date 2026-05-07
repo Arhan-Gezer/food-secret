@@ -35,6 +35,7 @@ def app():
     # Override DATABASE to point to our temp file
     app.config["DATABASE"] = db_path
     app.config["TESTING"] = True
+    app.config["WTF_CSRF_ENABLED"] = False
 
     with app.app_context():
         from app.database import init_db
