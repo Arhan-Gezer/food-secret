@@ -161,6 +161,7 @@
       <h6 class="fw-bold text-uppercase text-muted small mb-3 letter-spacing-1">Quick Actions</h6>
       <div class="d-flex gap-3 flex-wrap">
         <form method="POST" action="/calories/log">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
           <input type="hidden" name="calories"  value="{{ recipe.calorie_amount }}">
           <input type="hidden" name="meal_type" value="lunch">
@@ -168,6 +169,7 @@
           <button type="submit" class="btn-calories">➕ Add to My Calories</button>
         </form>
         <form method="POST" action="{{ url_for('orders.place') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
           <input type="hidden" name="restaurant_name" value="Food Secret Kitchen">
           <button type="submit" class="btn-order">🛵 Order This Meal</button>
